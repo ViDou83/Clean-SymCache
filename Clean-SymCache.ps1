@@ -59,9 +59,9 @@ function CleanTempFiles() {
 
         [string]$potentialSymbolName = $tmpFile.Split("\") | ForEach-Object { if ( $_ -Match $global:moduleRegex) { $_ } }
         if (!$potentialSymbolName) {
-            Write-Verbose "No potential symbol name found for $tmpFile"
-            if ($cleanTmpFiles -and !$discover) {
-                $global:fileToDelete += $tmpFile
+            Write-Verbose "No potential symbol file found for $tmpFile"
+            if (!$discover) {
+                $global:fileToDelete += $fileInfo 
             }
             continue
         }
@@ -126,6 +126,7 @@ function CleanTempFiles() {
                     #remove bigger from the list
                     $tmpFiles.Remove(0)
                     foreach ($tmpFile in $tmpFiles) {
+                        Write-Verbose "Adding $tmpFile to the delete list"
                         $global:fileToDelete += $tmpFile
                     }
                 }
@@ -190,15 +191,15 @@ function cleaningFiles()
     }
 
     foreach ($file in $global:fileToDelete) {
+        Write-Host $file
         [UInt64]$_length = $(Get-Item $file.FullName).Length
         Write-Verbose "Removing $($file.Name) size:$_length)"
         Remove-Item -Path $file.FullName -Confirm:$global:confirm -Verbose:$VerbosePreference
-        $global:fileToDelete.Remove($file)
     }
 
     $bytesFormatted = GetSizeInHumanReadable($global:TotalBytes)
     
-    Write-Host "Total files deleted:$global:fileToDeleted from the symbol cache:$SymCache - freed space $bytesFormatted" -ForegroundColor DarkGreen
+    Write-Host "Total files deleted:$($global:fileToDelete.Count) from the symbol cache:$SymCache - freed space $bytesFormatted" -ForegroundColor DarkGreen
 }
 #endregion
 

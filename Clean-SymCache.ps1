@@ -2,7 +2,7 @@
 param 
 (
     [Parameter(Mandatory = $true, ParameterSetName = "Symbol local store")]
-    [String]$SymCache = "D:\symbols\Sym",
+    [string]$SymCache = "C:\Symbols",
     [Switch]$force,
     [Switch]$cleanTmpFiles,
     [timespan]$cleanByAge,
@@ -36,7 +36,7 @@ function CleanTempFiles() {
 
     Write-Host "+  Step 1 - Finding all tmp files from symbols store path:$SymCache" -ForegroundColor DarkBlue
 
-    $TmpFilesList += Get-ChildItem -Recurse D:\symbols\Sym\ -File -Filter $tmpFileRegex
+    $TmpFilesList += Get-ChildItem -Recurse $SymCache -File -Filter $tmpFileRegex
     foreach ($fileInfo in $TmpFilesList) {
         [string]$fileName = $fileInfo.FullName
         Write-Verbose "Found tmp file $fileName size:$(GetSizeInHumanReadable($fileInfo.Length)) bytes"

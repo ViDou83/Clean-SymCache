@@ -97,9 +97,9 @@ function CleanTempFiles() {
             Write-Verbose "Checking if $target is already located in $folder"
 
             if (Test-Path -Path $target) {
-                Write-Verbose "Symbol $symbol is already located in $folder. Use -cleanSpace to remove tmp files"
-                if ($cleanTmpFiles) {
-                    $global:fileToDelete += $($folder + '\' + $tmpFileRegex) 
+                Write-Verbose "Symbol $symbol is already located in $folder. Use -cleanTmpFiles to remove tmp files"
+                if (!$discover) {
+                    $global:fileToDelete += Get-ChildItem -Path $($folder + '\' + $tmpFileRegex) -File -Filter $tmpFileRegex
                 }
                 continue
             }
@@ -140,7 +140,7 @@ function CleanTempFiles() {
             Write-Host "Restored $symbol from $bigger to $target"
             $global:TotalBytes -= $bigger.Length
 
-            if ($cleanSpace) {
+            if ($cleanTmpFiles) {
                 Get-ChildItem -Path $($folder + '\' + $tmpFileRegex) | Remove-Item -Confirm:$force
             }
         }
@@ -193,6 +193,7 @@ function cleaningFiles()
         [UInt64]$_length = $(Get-Item $file.FullName).Length
         Write-Verbose "Removing $($file.Name) size:$_length)"
         Remove-Item -Path $file.FullName -Confirm:$global:confirm -Verbose:$VerbosePreference
+        $global:fileToDelete.Remove($file)
     }
 
     $bytesFormatted = GetSizeInHumanReadable($global:TotalBytes)
